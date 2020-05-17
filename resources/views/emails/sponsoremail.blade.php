@@ -16,7 +16,7 @@
 
             <table border="0" cellpadding="0" align="center" cellspacing="0" class="responsive-table">
 
-            <tbody><tr><td align="left" valign="top" style="padding:10px;font:9px/15px Arial;text-align:justify;color:#a6a6a6">You are receiving this mail as a registered member of  cloudmlmsoftware  Please add <a href="mailto:info@cloudmlmsoftware.com" style="text-decoration:underline;color:#a6a6a6" target="_blank">{{$email->from_email}}</a> to your address book to ensure delivery into your inbox.</td></tr>
+            <tbody><tr><td align="left" valign="top" style="padding:10px;font:9px/15px Arial;text-align:justify;color:#a6a6a6">You are receiving this mail as a registered member of  cloudmlmsoftware  Please add <a href="mailto:info@cloudmlmsoftware.com" style="text-decoration:underline;color:#a6a6a6" target="_blank"></a> to your address book to ensure delivery into your inbox.</td></tr>
 
             </tbody></table>
 
@@ -43,7 +43,7 @@
 
                 <tr>
 
-                    <td style="padding:30px 30px 10px 30px"><h2 style="color:#000;">You are registerd to {{$company_name}}</h2></td>
+                    <td style="padding:30px 30px 10px 30px"><h2 style="color:#000;">A sponsor has been added under your account.</h2></td>
 
                 </tr>
 
@@ -52,10 +52,11 @@
                     <td style="padding:0px 30px 20px 30px;"><p style="font-size:14px; color:#666666;">
 
 
-                  Hi {{$firstname}} {{$name}},
+                  Hi {{$username}},
 
                   
             <p>   New User {{$newuser}} registered under you </p>
+            <p>  Email {{$email}}</p>
 
 
 
@@ -80,7 +81,7 @@ Cheerfully yours, <br>
 
                 <tr>
 
-                    <td style="padding:20px 30px"><p style="font-size:12px; color:#000000;">Copyright © {{Date('Y')}} {{$company_name}}. All Rights Reserved</p></td>
+                    <td style="padding:20px 30px"><p style="font-size:12px; color:#000000;">Copyright � {{Date('Y')}} {{$company_name}}. All Rights Reserved</p></td>
 
                 </tr>
 

@@ -30,6 +30,11 @@ Route::get('lang/{lang}', ['as' => 'lang.switch', 'uses' => 'LanguageController@
 
 Route::get('logout', '\App\Http\Controllers\Auth\LoginController@logout');
 
+/* cron*/
+Route::get('db-backup',function(){
+    Artisan::call('Database:backup');
+});
+
 /*
 |--------------------------------------------------------------------------
 | //Translation routes
@@ -62,6 +67,7 @@ Route::get('email_validate/{email}', 'RegisterController@validatemail');
 Route::get('user_validate/{username}', 'RegisterController@validateusername');
 Route::get('passport_validate/{passport}', 'RegisterController@validatepassport');
 Route::get('voucher_validate/{voucher}', 'RegisterController@validatevoucher');
+Route::get('testmail', 'RegisterController@testMail');
 
 
 Route::get('binary_calculate_demo', 'RegisterController@binary_calculate_demo');
@@ -139,7 +145,7 @@ Route::get('paypal/ipnnotify', 'Auth\RegisterController@ipnnotify');
 Route::post('paypal/ipnnotify', 'Auth\RegisterController@ipnnotify');
 
 
-
+Route::get('category_update', 'CloudMLMController@category_update');
 
 /**
 *  ** Issue attachments 
@@ -171,7 +177,6 @@ Route::get('store_sponsor', 'Auth\RegisterController@store_sponsor');
  */
  
 Route::group(['prefix' => 'admin', 'middleware' => ['web', 'auth'], 'namespace' => 'Admin'], function () {
-
 
     Route::pattern('id', '[0-9]+');
     Route::pattern('id2', '[0-9]+');
@@ -226,6 +231,9 @@ Route::group(['prefix' => 'admin', 'middleware' => ['web', 'auth'], 'namespace' 
     Route::post('updatpackage_image', 'SettingsController@updatpackage_image');
 
     Route::post('updatcategory_image', 'SettingsController@updatcategory_image');
+    
+    Route::post('users/bitconaccount_settings','UserController@bitconaccount_settings');
+    Route::post('users/payplemail_settings', 'UserController@payplemail_settings');
 
     Route::post('saveprofile', ['as' => 'admin.saveprofile', 'uses' => 'UserController@saveprofile']);
 
@@ -285,6 +293,12 @@ Route::group(['prefix' => 'admin', 'middleware' => ['web', 'auth'], 'namespace' 
     Route::get('activatependinguser/{id}','UserController@activatePendingUser');
     Route::get('users/verifyusers','UserController@verifyusers');
     Route::post('verifydocuser','UserController@verifyDocuser');
+    
+
+    Route::get('deletependinguser/{id}','UserController@deletependinguser');
+
+    Route::get('users/deleteusers','UserController@deleteusers');
+    Route::post('users/deleteusers','UserController@postdeleteusers');
 
     //tree
     Route::get('tree', 'TreeController@tree');
@@ -371,6 +385,7 @@ Route::group(['prefix' => 'admin', 'middleware' => ['web', 'auth'], 'namespace' 
     Route::post('upcreatebrokers','UserController@upCreateBrokers');
     Route::get('brokerrequest','UserController@brokerRequest');
     Route::get('editbroker/{id}','UserController@editBroker');
+  
     Route::post('savededitbroker','UserController@saveeditBroker');
     Route::get('deletebroker/{id}','UserController@deleteBroker');
     
@@ -458,7 +473,12 @@ Route::group(['prefix' => 'admin', 'middleware' => ['web', 'auth'], 'namespace' 
     Route::get('emailsettings', 'SettingsController@email');
     Route::post('emailsettings', 'SettingsController@updateemailsetting');
     Route::get('welcomeemail', 'SettingsController@welcome');
-    Route::post('welcomeemail', 'SettingsController@updatewelcome');
+    Route::get('deletetemplate/{id}','SettingsController@deletetemplate');
+    Route::post('savetemplate','SettingsController@savetemplate');
+    Route::get('edittemplate/{id}','SettingsController@edittemplate');
+    //Route::post('welcomeemail', 'SettingsController@updatewelcome');
+    Route::post('welcomeemail', 'SettingsController@template');
+    
     Route::get('uploads', 'SettingsController@getUploadLogo');
     Route::post('uploadlogo', ['as' => 'admin.upload', 'uses' => 'SettingsController@uploads']);
     Route::post('logo', 'SettingsController@savelogo');
@@ -622,6 +642,9 @@ Route::group(['prefix' => 'admin', 'middleware' => ['web', 'auth'], 'namespace' 
     Route::post('deletedocument', 'DocumentController@deletedocument');
     Route::post('updatedocument', 'DocumentController@updatedocument');
     Route::get('download/{name}', 'DocumentController@getDownload');
+    
+
+    Route::get('document/delete/{name}', 'DocumentController@document_delete');
 
     /**
      * Notes
@@ -770,6 +793,9 @@ Route::group(['prefix' => 'user', 'middleware' => 'auth', 'namespace' => 'user']
     Route::post('ewallet', 'Ewallet@index');
     Route::get('wallet/data', 'Ewallet@data');
     Route::get('viewreferals', 'ViewReferals@index');
+
+    Route::post('payplemail_settings', 'ProfileController@payplemail_settings');
+    Route::post('bitconaccount_settings', 'ProfileController@bitconaccount_settings');
     //mail system
 
 

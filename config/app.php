@@ -25,7 +25,7 @@ return [
     |
     */
 
-    'env' => env('APP_ENV', 'production'),
+    'env' => env('APP_ENV', 'local'),
 
     /*
     |--------------------------------------------------------------------------
@@ -38,7 +38,7 @@ return [
     |
     */
 
-    'debug' => env('APP_DEBUG', false),
+    'debug' => env('APP_DEBUG', true),
 
     /*
     |--------------------------------------------------------------------------
@@ -196,7 +196,8 @@ return [
         Mews\Purifier\PurifierServiceProvider::class,
         Barryvdh\Debugbar\ServiceProvider::class,
         Cohensive\Embed\EmbedServiceProvider::class,
-        Srmklive\PayPal\Providers\PayPalServiceProvider::class
+        Srmklive\PayPal\Providers\PayPalServiceProvider::class,
+        JeroenNoten\LaravelCkEditor\ServiceProvider::class,
 
 
 

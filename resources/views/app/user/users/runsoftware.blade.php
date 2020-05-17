@@ -9,18 +9,46 @@
   padding: 20px;
 }
 .run-backg{
-        background-image: url('/img/cache/original/runsoftware.jpg');
+        background-image: url('/img/cache/original/runsoft-bg.jpg');
         background-repeat: no-repeat;
         background-size: cover;
             /*color: #fdfdfd;*/
+      background-position: center;
 
     }
+.panel-flat > .panel-heading{
+     background-color: transparent;
+}
+.btn{
+  padding: 7px 34px;
+}
+@media (min-width:1025px) and (max-width:1081px) {
+ 
+  .btn {
+    padding: 7px 29px;
+}
+}
+@media (min-width:769px) and (max-width:828px) {
+ 
+  .btn {
+    padding: 7px 26px;
+}
+}
+@media (min-width: 320px) and (max-width:926px) {
+.run-backg{
+height: 358px;
+}
+.run-table {
+/*margin-top: 129px;*/
+margin-top: 137px;
+} 
+}
 </style>
 @endsection @section('main')
 @include('flash::message') 
 @include('utils.errors.list')
 
-<div class="panel panel-flat ">
+<div class="panel panel-flat run-backg">
     <div class="panel-heading">
         <h4 class="panel-title">
           Run Software
@@ -28,7 +56,7 @@
     </div>
 
     <div class="panel-body">
-      <div class="run-backg">
+ 
       <div class="row">
      <!--    <div class="col-sm-12">
           
@@ -77,8 +105,8 @@
      
       
     </div> -->
-    <div class="col-sm-4 col-sm-offset-4 text-center border">
-      <p><h4 style="color: red;">Run Software</h4></p>
+    <div class="col-md-4 col-md-offset-4 col-sm-6 col-sm-offset-3 text-center border">
+      <p><h4 style="color:#ffffff; font-weight: 600;">Run Software</h4></p>
    
 
           @if($status == "stopped")
@@ -112,7 +140,9 @@
                     <select name="user" id="user" class="form-control" required="true">
                       <option value="">Choose User</option>
                       @foreach($broker_users as $busers)
-                      <option value="{{$busers->id}}">{{$busers->name}}</option>
+                      
+                      <option value="{{$busers->id}}">{{$busers->name}} - {{$busers->url}}</option>
+                      
                       @endforeach
                     </select>
                 </div>

@@ -25,6 +25,9 @@ use App\PaypalDetails;
 use App\ProfileInfo;
 use App\Ranksetting;
 use App\IpnResponse;
+use App\Emails;
+use App\welcomeemail;
+
 
 use Validator;
 use Session;
@@ -32,6 +35,7 @@ use Crypt;
 use Auth;
 use Redirect;
 use Input;
+use Mail;
 
 //paypal
 
@@ -554,6 +558,32 @@ class productController extends UserAdminController
             $item->payment_status='complete';
             $item->save();
             $package=Packages::find($item->package);
+            error_log($item);
+            $email = Emails::find(3);
+            $welcome=welcomeemail::find(2);
+            $app_settings = AppSettings::find(1);
+            error_log("detect upgrade");
+             error_log($item);
+            $payment_num = "New User";
+            if($item->package == 2) $payment_num = "bronze";
+            if($item->package == 3) $payment_num = "silver";
+            if($item->package == 4) $payment_num = "gold";
+            if($item->package == 5) $payment_num = "diamond";
+            // Mail::send('emails.upgrade',
+            // ['email'         => $email,
+            //     'company_name'   => $app_settings->company_name,
+            //     'logo'   => $app_settings->logo,
+            //     'welcome'        => $welcome->subject,
+            //     'final' => $welcome->body,
+            //     'firstname' => $item->username,
+            //     'period' => $item->payment_period,
+            //     'package_name' => $payment_num,
+
+            // ], function ($m) use ($item, $email) {
+            //     $m->to($item->email,$item->username)->subject('Successfully upgraded')->from($email->from_email, $email->from_name);
+            // });
+
+
             $purchase_id= PurchaseHistory::create([
                             'user_id'=>$item->user_id,
                             'purchase_user_id'=>$item->user_id,

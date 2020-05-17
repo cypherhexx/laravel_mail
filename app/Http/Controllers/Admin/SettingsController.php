@@ -22,6 +22,8 @@ use App\Activity;
 use App\settings2;
 use App\Category;
 use App\Tree_Table;
+use App\Sponsortree;
+use App\Mail_template;
 
 use Auth;
 use Artisan;
@@ -55,6 +57,22 @@ use App\Jobs\SendAllEmail;
 
 use Carbon;
 
+use PayPal\Api\ChargeModel;
+use PayPal\Api\Currency;
+use PayPal\Api\MerchantPreferences;
+use PayPal\Api\PaymentDefinition;
+use PayPal\Api\Plan;
+use PayPal\Api\Patch;
+use PayPal\Api\PatchRequest;
+use PayPal\Common\PayPalModel;
+
+// use to process billing agreements
+use PayPal\Api\Agreement;
+use PayPal\Api\AgreementStateDescriptor;
+use PayPal\Api\ShippingAddress;
+
+
+
 class SettingsController extends AdminController
 {
     /**
@@ -74,7 +92,19 @@ class SettingsController extends AdminController
         // $paypal_conf = \Config::get('paypal');
         // $this->_api_context = new ApiContext(new OAuthTokenCredential($paypal_conf['client_id'], $paypal_conf['secret']));
         // $this->_api_context->setConfig($paypal_conf['settings']);
-      self::$provider = new ExpressCheckout;    
+      self::$provider = new ExpressCheckout;   
+
+       if(config('paypal.settings.mode') == 'live'){
+            $this->client_id = config('paypal.live_client_id');
+            $this->secret = config('paypal.live_secret');
+        } else {
+            $this->client_id = config('paypal.sandbox_client_id');
+            $this->secret = config('paypal.sandbox_secret');
+        }
+        
+      
+      $this->apiContext = new ApiContext(new OAuthTokenCredential($this->client_id, $this->secret));
+      $this->apiContext->setConfig(config('paypal.settings')); 
     }
     public function index()
     
@@ -353,7 +383,7 @@ class SettingsController extends AdminController
 
     public function welcome()
     {
-
+        $templates = Mail_template::all();
         $settings = Welcome::all();
         // $title= trans('settings.rank_settings');
         $title     = trans('menu.system_templates');
@@ -365,7 +395,81 @@ class SettingsController extends AdminController
         //$userss = User::getUserDetails(Auth::id());
         //$user = $userss[0];
          $settings_payout  = PaymentNotification::all();
-        return view('app.admin.settings.welcomesetting', compact('title', 'settings', 'sub_title', 'base', 'method','settings_payout'));
+       
+        return view('app.admin.settings.welcomesetting', compact('title', 'settings', 'sub_title', 'base', 'method','settings_payout','templates'));
+    }
+
+    public function edittemplate($id)
+    {
+        $title     = trans('menu.system_templates');
+        $sub_title = trans('menu.system_templates');
+        $base      = trans('menu.system_templates');
+        $method    = trans('menu.system_templates');
+        $template=Mail_template::find($id);
+
+        return view('app.admin.settings.edittemplate', compact('template','title','sub_title','base','method'));
+    }
+
+    public function deletetemplate($id)
+    {   
+        error_log("delete test");
+        $template=Mail_template::find($id)->delete();
+        return redirect()->back();
+    }
+
+    public function savetemplate(Request $request)
+    {   
+        error_log('update test');
+        $templates = Mail_template::all();
+        $settings = Welcome::all();
+        // $title= trans('settings.rank_settings');
+        $title     = trans('menu.system_templates');
+        $sub_title = trans('menu.system_templates');
+        $base      = trans('menu.system_templates');
+        $method    = trans('menu.system_templates');
+        //$unread_count  = Mail::unreadMailCount(Auth::id());
+        //$unread_mail  = Mail::unreadMail(Auth::id());
+        //$userss = User::getUserDetails(Auth::id());
+        //$user = $userss[0];
+        error_log("update template");
+        error_log($request->id);
+        error_log($request->text);
+        $settings_payout  = PaymentNotification::all();
+        error_log($request->content);
+        Mail_template::where('id',$request->id)->update(['text'=>$request->content]);
+        return redirect('admin/welcomeemail');
+    }
+
+
+
+
+    public function template(Request $request) {
+        error_log("detect template");
+        $content = "";
+        $subject = "";
+        //error_log($request->all()->content);
+        error_log(json_encode($request->all()));
+        $data = json_encode($request->all());
+       // error_log($data.content);
+        error_log($request->content);
+        
+        $settings = Welcome::all();
+        error_log('add template');
+        // $title= trans('settings.rank_settings');
+        $title     = trans('menu.system_templates');
+        $sub_title = trans('menu.system_templates');
+        $base      = trans('menu.system_templates');
+        $method    = trans('menu.system_templates');
+        $content = $request->content;
+        $subject = $request->subject;
+        if($subject != "")$addNew = Mail_template::create(['text'=>$content, 'subject' =>$subject]);
+        //$unread_count  = Mail::unreadMailCount(Auth::id());
+        //$unread_mail  = Mail::unreadMail(Auth::id());
+        //$userss = User::getUserDetails(Auth::id());
+        //$user = $userss[0];
+         $settings_payout  = PaymentNotification::all();
+         $templates = Mail_template::all();
+        return view('app.admin.settings.welcomesetting', compact('title', 'settings', 'sub_title', 'base', 'method','settings_payout','content','templates'));
     }
 
     public function updatewelcome(Request $request)
@@ -1026,6 +1130,26 @@ static function humanFilesize($size, $precision = 2) {
                     }
                    }
 
+                  $package=Packages::find($request->package);
+
+                  $orderid ='Atmor-'. mt_rand();
+                                     
+                  $pendingpurchase=PendingTransactions::create([
+                             'order_id' =>$orderid,
+                             'package' => $request->package,
+                             'user_id'=>$user_id,
+                             //'username' =>Auth::user()->username,
+                             //'email' =>Auth::user()->email,
+                             // 'sponsor' => $sponsor_id,
+                             // 'request_data' =>json_encode($request->all()),
+                             // 'payment_method'=>$request->steps_plan_payment,
+                             // 'payment_period'=>$request->payment_type,
+                             'payment_type' =>'forced',
+                             'amount' => $package->amount,
+                             // 'next_payment_date' => $next_payment_date,
+                             // 'monthly_commission_date' => $monthly_commission_date,
+                            ]);
+
                     /*edited by vincy on match 13 2020*/
             
                     $check_in_matrix = Tree_Table::where('user_id',$user_id)->where('type','yes')->count();
@@ -1034,7 +1158,6 @@ static function humanFilesize($size, $precision = 2) {
                         $addtomatrixplan = Packages::Addtomatrixplan($user_id);   
                     }
                     /*edited by vincy on match 13 2020*/
-                    $package=Packages::find($request->package);
 
                     //commsiiom
                         $sponsor_id=Sponsortree::where('user_id',$user_id)->value('sponsor');
@@ -1053,6 +1176,8 @@ static function humanFilesize($size, $precision = 2) {
                             Packages::rankCheck($value);
                         }
                         Packages::levelCommission($user_id,$package->amount,$request->package);
+
+                        $category_update=User::categoryUpdate($sponsor_id);
                         // Packages::directReferral($sponsor_id,$item->user_id,$package->amount);
                         //comm
 
